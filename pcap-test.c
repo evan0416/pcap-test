@@ -60,6 +60,11 @@ struct tcp_hdr
     u_int16_t th_urp;         /* urgent pointer */				//1byte
 };
 
+struct data_hdr
+{
+    u_int8_t data[10];
+};
+
 
 Param param = {
 	.dev_ = NULL
@@ -101,10 +106,11 @@ int main(int argc, char* argv[]) {
         struct ethernet_hdr* eth_hdr = (struct ethernet_hdr*)packet;
         struct ipv4_header* ip_hdr = (struct ipv4_header*)(packet + sizeof(struct ethernet_hdr));
         struct tcp_hdr* tcp_hdr = (struct tcp_hdr*)(packet + sizeof(struct ethernet_hdr) + sizeof(struct ipv4_header));
+        struct data_hdr* data_hdr = (struct data_hdr*)(packet + sizeof(struct ethernet_hdr) + sizeof(struct ipv4_header) + sizeof(struct tcp_hdr));
 
 
         // Print the required fields
-        printf("source ethernet address ");
+        printf("source ethernet address");
         for (int i = 0; i < 6; i++) {
             printf("%02x", eth_hdr->ether_shost[i]);
         }
@@ -117,20 +123,30 @@ int main(int argc, char* argv[]) {
         printf("\n");
 
 //        not ip typeEthernet Type: 0x0008
-        if (ntohs(eth_hdr->ether_type) !=ETHERTYPE_IP){
-            continue;
-        }
+        if (ntohs(eth_hdr->ether_type) !=ETHERTYPE_IP) continue;
+
 
         printf("source ip address: %0x\n", ip_hdr->ip_src);
         printf("destination ip address: %0x\n", ip_hdr->ip_src);
 
-        if (ip_hdr->ip_p !=IPP_TCP){
-            continue;
-        }
+        if (ip_hdr->ip_p !=IPP_TCP) continue;
 
 
         printf("source port: %d\n", ntohs(tcp_hdr->th_sport));
         printf("destination port: %d\n", ntohs(tcp_hdr->th_dport));
+
+    
+        printf("PayLoad(Data): ");
+        for (int i = 0; i < 10; i++) {
+            int result = data_hdr->data[i];
+            if (result != 0){
+                // printf("%02x", data_hdr->data[i]);
+                printf("%02x", res);
+            }
+            
+        }
+        printf("\n");
+
 //		printf("%d bytes captured\n", header->caplen);
 	}
 
